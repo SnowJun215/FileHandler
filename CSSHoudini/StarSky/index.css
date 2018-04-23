@@ -2,6 +2,7 @@
 
 .star-sky {
     --star-density: 0.8;
+    --star-key-seed: 1;
     background-image: paint(starry-sky);
 }
 
@@ -12,6 +13,7 @@
     top: 0;
     width: 100%;
     height: 100%;
+    --star-key-seed: 1;
     --star-density: 0.5;
     background-image: paint(starry-sky);
 }

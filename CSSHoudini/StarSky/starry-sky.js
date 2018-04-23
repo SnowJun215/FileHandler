@@ -6,35 +6,58 @@
  */
 class StarrySky {
     paint (ctx, paintSize, properties) {
-        let starDensity = +properties.get('--star-density').toString() || 1;
+        // 黑色夜空
+        ctx.fillRect(0, 0, paintSize.width, paintSize.height);
+        if(!this.counter) {
+            this.counter = 1;
+        }else{
+            this.counter++;
+        }
+        if(this.counter === 2) {
+            console.log(paintSize.height);
+            let starDensity = +properties.get('--star-density').toString() || 1;
+
+            this.seed = +(properties.get('--star-key-seed').toString() || 0);
+
+            this.addStars(paintSize.width, paintSize.height, starDensity);
+        }
+        if(this.stars) {
+            for (let star of this.stars) {
+                ctx.fillRect(star.x, star.y, star.size, star.size);
+                ctx.fillStyle = `hsla(${star.hue}, 30%, 80%, .${star.opacityOne + star.opacityTwo})`;
+            }
+        }
+    }
+
+    random () {
+        let x = Math.sin(this.seed++) * 10000;
+        return x - Math.floor(x);
+    }
+
+    addStars (xMax, yMax, starDensity = 1) {
         // 最大只能为1
         starDensity > 1 && (starDensity = 1);
 
-        let xMax = paintSize.width;
-        let yMax = paintSize.height;
-        // 黑色夜空
-        ctx.fillRect(0, 0, xMax, yMax);
-
         // 星星数量
         let hmTimes = Math.round((xMax + yMax) * starDensity );
+        this.stars = new Array(hmTimes);
         for(let i = 0; i <= hmTimes; i++){
-            // 星星的xy坐标， 随机
-            let x = Math.floor((Math.random() * xMax) + 1);
-            let y = Math.floor((Math.random() * yMax) + 1);
-            // 星星的大小
-            let size = Math.floor((Math.random() * 2) + 1);
-            // 星星的暗亮
-            let opacityOne = Math.floor((Math.random() * 9) + 1);
-            let opacityTwo = Math.floor((Math.random() * 9) + 1);
-            let hue = Math.floor((Math.random() * 360) + 1);
-
-            ctx.fillRect(x, y, size, size);
-            ctx.fillStyle = `hsla(${hue}, 30%, 80%, .${opacityOne + opacityTwo})`;
+            this.stars[i] = {
+                // 星星的xy坐标， 随机
+                x: Math.floor((this.random() * xMax) + 1),
+                y: Math.floor((this.random() * yMax) + 1),
+                // 星星的大小
+                size: Math.floor((this.random() * 2) + 1),
+                // 星星的暗亮
+                opacityOne: Math.floor((this.random() * 9) + 1),
+                opacityTwo: Math.floor((this.random() * 9) + 1),
+                hue: Math.floor((this.random() * 360) + 1),
+            };
         }
     }
 
     static get inputProperties() {
-        return ['--star-density'];
+        return ['--star-density', '--star-key-seed'];
     }
 }
 
