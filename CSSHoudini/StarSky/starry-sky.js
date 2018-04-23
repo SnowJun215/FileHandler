@@ -8,6 +8,7 @@ class StarrySky {
     paint (ctx, paintSize, properties) {
         // 黑色夜空
         ctx.fillRect(0, 0, paintSize.width, paintSize.height);
+
         if(!this.counter) {
             this.counter = 1;
         }else{
@@ -17,7 +18,9 @@ class StarrySky {
             console.log(paintSize.height);
             let starDensity = +properties.get('--star-density').toString() || 1;
 
-            this.seed = +(properties.get('--star-key-seed').toString() || 0);
+            const ONE_HOUR = 36000 * 1000;
+
+            this.seed = +(properties.get('--star-key-seed').toString() || 0) + Date.now() / ONE_HOUR >> 0;
 
             this.addStars(paintSize.width, paintSize.height, starDensity);
         }
