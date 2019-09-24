@@ -550,7 +550,11 @@ Game.getOriginData = function (points) {
  * @returns {boolean}
  */
 Game.checkResult = function (points, target) {
-    return JSON.stringify(Game.getOriginData(points)) === JSON.stringify(target);
+    return Game.getOriginData(points).every((item) => {
+        return !!target.find((shake) => {
+            return JSON.stringify(shake) === JSON.stringify(item);
+        });
+    });
 };
 
 /**
