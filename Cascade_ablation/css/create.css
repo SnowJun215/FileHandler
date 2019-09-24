@@ -1,0 +1,47 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+body {
+    padding: 10px;
+    overflow: hidden;
+}
+
+.create-container {
+    display: flex;
+    height: 100%;
+    margin: 0 auto;
+    align-items: center;
+}
+
+#select {
+}
+
+#create {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.btn-area {
+    flex-shrink: 0;
+    flex-grow: 1;
+    margin-top: 10px;
+}
+@media screen and (orientation: portrait) {
+    /*竖屏 css*/
+    .create-container {
+        flex-direction: column;
+    }
+    #select {
+        width: 100%;
+        height: 20vh;
+    }
+}
+@media screen and (orientation: landscape) {
+    /*横屏 css*/
+}

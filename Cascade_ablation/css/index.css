@@ -1,0 +1,133 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+body {
+    padding: 10px;
+    overflow: hidden;
+}
+
+.game-container {
+    display: flex;
+    height: 100%;
+    margin: 0 auto;
+}
+.game-info {
+    flex-grow: 1;
+    display: flex;
+}
+
+.target-box {
+    flex-grow: 1;
+    display: flex;
+    width: fit-content;
+}
+
+.title {
+    margin: 0 0 10px;
+    font-size: 18px;
+    text-align: center;
+}
+
+#drawing {
+    display: block;
+    width: 100%;
+    height: 100%;
+    flex-shrink: 0;
+}
+
+#target {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.btn-area {
+    flex-shrink: 0;
+}
+@media screen and (orientation: portrait) {
+    /*竖屏 css*/
+    .game-container {
+        flex-direction: column;
+        max-width: 66vh;
+    }
+    .game-info {
+        flex-direction: row;
+        width: 100%;
+        margin-top: 10px;
+    }
+    .target-box {
+        margin-left: 10px;
+        flex-direction: column;
+    }
+}
+@media screen and (orientation: landscape) {
+    /*横屏 css*/
+    .game-container {
+        flex-direction: row;
+        max-height: 66vw;
+    }
+    .game-info {
+        flex-direction: column;
+        height: 100%;
+        margin-left: 10px;
+    }
+    .target-box {
+        margin-top: 10px;
+        flex-direction: column;
+    }
+    .title {
+        flex-grow: 1;
+    }
+}
+
+.model {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, .6);
+}
+
+.model.active {
+    display: block;
+}
+
+.body {
+    background-color: #ffffff;
+    width: 80%;
+    max-width: 334px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    margin: auto;
+    height: 300px;
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, .6) 5px 10px 20px;
+    text-align: center;
+}
+
+.body .title {
+    font-size: 24px;
+}
+
+.body .close {
+    width: calc(100% - 40px);
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    height: 50px;
+    background-color: #3a8ee6;
+    border-radius: 5px;
+    border: none;
+    color: #ffffff;
+    font-size: 18px;
+}

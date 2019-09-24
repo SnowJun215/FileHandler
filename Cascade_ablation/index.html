@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <title>层叠消融</title>
+    <link href="css/index.css" rel="stylesheet">
+</head>
+<body>
+<div class="game-container">
+    <canvas id="drawing">A drawing of something.</canvas>
+    <div class="game-info">
+        <ul class="btn-area">
+            <li>按钮区域</li>
+        </ul>
+        <div class="target-box">
+            <p class="title">~ 目标图案 ~</p>
+            <canvas id="target">Target</canvas>
+        </div>
+    </div>
+</div>
+<div class="model">
+    <div class="body">
+        <p class="title">闯关成功</p>
+        <button class="close" onclick="hideModel()">关闭</button>
+    </div>
+</div>
+<script src="js/data.js"></script>
+<script src="js/game.js"></script>
+<script src="js/index.js"></script>
+</body>
+</html>
