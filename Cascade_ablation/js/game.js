@@ -473,6 +473,7 @@ Game.initShakeData = function (points, col) {
             position = shuffle([6, 7, 2, 3, 4, 5]);
             break;
     }
+    console.log(position);
     newPoints.map((sub_points) => {
         let newPos = position.shift();
         let range = getRange(sub_points);
@@ -516,11 +517,12 @@ Game.initShakeData = function (points, col) {
             case 7:
                 sub_points.map((point) => {
                     point.x = point.x + col - Math.ceil(center.x / 2) - Math.ceil((range.xMax - range.xMin) / 2) - range.xMin;
-                    point.y = point.y + col - Math.ceil(center.y / 2) - Math.ceil((range.yMax - range.yMin) / 2) - range.yMin;
+                    point.y = point.y + Math.ceil(center.y / 2) - Math.ceil((range.yMax - range.yMin) / 2) - range.yMin;
                 });
                 break;
         }
     });
+    console.log(points, newPoints);
     return newPoints;
 };
 
