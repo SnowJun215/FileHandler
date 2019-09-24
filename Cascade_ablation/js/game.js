@@ -21,17 +21,18 @@ Game.prototype = {
      * @returns {boolean}
      */
     initGame: function () {
+        this.gameData = Game.initShakeData(this.data, this.col);
         this.initData();
         this.clearArea();
         this.initArea();
-        this.drawBlock(this.data.points);
+        this.drawBlock(this.gameData);
         this.addGameListener(this.touchStart);
     },
     initTarget: function () {
         this.initData();
         this.clearArea();
         this.initArea();
-        let tempPoint = JSON.parse(JSON.stringify(this.data.target));
+        let tempPoint = JSON.parse(JSON.stringify(this.data));
         let range = getRange(tempPoint, true);
         let left = Math.ceil((this.col - (range.xMax - range.xMin + 1)) / 2);
         let top = Math.ceil((this.col - (range.yMax - range.yMin + 1)) / 2);
@@ -110,7 +111,7 @@ Game.prototype = {
     },
     touchStart: function (e) {
         console.log('start');
-        this.data.points.map((sub_points) => {
+        this.gameData.map((sub_points) => {
             let eventClient = e.clientX ? e : e.changedTouches[0];
             let position = Game.getPosition(eventClient, {x: this.canvas.offsetLeft, y: this.canvas.offsetTop});
             if (Game.isPointInPolygon({
@@ -146,7 +147,7 @@ Game.prototype = {
             });
             _this.clearArea();
             _this.initArea();
-            _this.drawBlock(_this.data.points);
+            _this.drawBlock(_this.gameData);
         }, 5)(eventClient))
     },
     touchEnd: function (sub_points) {
@@ -175,8 +176,8 @@ Game.prototype = {
         }
         this.clearArea();
         this.initArea();
-        this.drawBlock(this.data.points);
-        if (Game.checkResult(this.data.points, this.data.target)) {
+        this.drawBlock(this.gameData);
+        if (Game.checkResult(this.gameData, this.data)) {
             showModel();
         }
         this.isDrag = false;
@@ -257,10 +258,9 @@ Game.prototype = {
                     break;
                 case 2:
                     console.log("向下！");
-                    if (!_this.getTarget) {
-                        return false;
+                    if (_this.getTarget) {
+                        _this.lock = true;
                     }
-                    _this.lock = true;
                     break;
                 case 3: // 左
                 case 4: // 右
@@ -272,7 +272,7 @@ Game.prototype = {
                 let y = (eventClient.clientY - _this.beginY) / _this.itemWidth;
                 _this.beginX = eventClient.clientX;
                 _this.beginY = eventClient.clientY;
-                if(_this.inResultTarget) {
+                if (_this.inResultTarget) {
                     sub_points.map((point) => {
                         point.x = point.x + x;
                         point.y = point.y + y;
@@ -283,7 +283,7 @@ Game.prototype = {
                 _this.initArea(0, Math.ceil(_this.itemWidth * 6 + 10), _this.canvas.width, _this.canvas.height);
                 _this.drawBlock(_this.data);
                 _this.drawBlock(_this.resultList || [], {x: 0, y: _this.itemWidth * 6 + 10});
-                if(_this.lock) {
+                if (_this.lock) {
                     _this.getTarget.updatePoints(x, y);
                     _this.getTarget.draw('source-over');
                 }
@@ -308,7 +308,7 @@ Game.prototype = {
         console.log('end');
         let eventClient = e.clientX ? e : e.changedTouches[0];
         if (this.lock || this.inResultTarget) {
-            if(this.inResultTarget) {
+            if (this.inResultTarget) {
                 let isOutSide = false;
                 sub_points.map((point) => {
                     let x = point.x;
@@ -323,10 +323,7 @@ Game.prototype = {
                     }
                 });
                 if (isOutSide) {
-                    sub_points.map((point, index) => {
-                        point.x = this.begin[index].x;
-                        point.y = this.begin[index].y;
-                    })
+                    this.resultList.splice(this.resultList.indexOf(sub_points), 1);
                 }
             }
             this.clearArea();
@@ -374,7 +371,7 @@ Game.prototype = {
     setTargetList: function () {
         let isInTarget = true;
         let target;
-        if(this.lock) {
+        if (this.lock) {
             target = JSON.parse(JSON.stringify(this.getTarget.points));
             target.forEach((point) => {
                 point.x = Math.round(point.x / this.itemWidth);
@@ -386,19 +383,33 @@ Game.prototype = {
             if (!this.resultList) {
                 this.resultList = [];
             }
-            this.lock && this.resultList.push(target);
+            if (this.lock) {
+                if (this.resultList.length >= 6) {
+                    alert('目前游戏最多支持6个图形');
+                } else {
+                    this.resultList.push(target);
+                }
+            }
             this.drawBlock(this.resultList || [], {x: 0, y: this.itemWidth * 6 + 10});
         } else {
             alert('请把小黑块整体移动到目标区域');
         }
     },
 };
+
+/**
+ * 获取点的偏移后位置
+ * @param point
+ * @param offset
+ * @returns {{clientY: number, clientX: number}}
+ */
 Game.getPosition = function (point, offset = {}) {
     return {
         clientX: point.clientX - (offset.x || 0),
         clientY: point.clientY - (offset.y || 0)
     }
 };
+
 /**
  * 判断点是否在多边形内/边上
  * @param p
@@ -439,17 +450,105 @@ Game.isPointInPolygon = function (p, poly) {
     return Math.round(sum / Math.PI) !== 0
 };
 
-Game.checkResult = function (points, target) {
-    let range;
+/**
+ * 初始化图形位置
+ * @param points
+ * @param col
+ * @returns {array}
+ */
+Game.initShakeData = function (points, col) {
+    let newPoints = JSON.parse(JSON.stringify(points));
+    let position = [];
+    let center = {
+        x: Math.ceil(col / 2),
+        y: Math.ceil(col / 2)
+    };
+    switch (newPoints.length) {
+        case 3:
+        case 4:
+        case 5:
+            position = shuffle([1, 2, 3, 4, 5].slice(0, newPoints.length));
+            break;
+        case 6:
+            position = shuffle([6, 7, 2, 3, 4, 5]);
+            break;
+    }
+    newPoints.map((sub_points) => {
+        let newPos = position.shift();
+        let range = getRange(sub_points);
+        switch (newPos) {
+            case 1:
+                sub_points.map((point) => {
+                    point.x = point.x + center.x - Math.ceil((range.xMax - range.xMin) / 2) - range.xMin;
+                    point.y = point.y + 1 - range.yMin;
+                });
+                break;
+            case 2:
+                sub_points.map((point) => {
+                    point.x = point.x + 1 - range.xMin;
+                    point.y = point.y + center.y - Math.ceil((range.yMax - range.yMin) / 2) - range.yMin;
+                });
+                break;
+            case 3:
+                sub_points.map((point) => {
+                    point.x = point.x + (col - 1 - (range.xMax - range.xMin)) - range.xMin;
+                    point.y = point.y + center.y - Math.ceil((range.yMax - range.yMin) / 2) - range.yMin;
+                });
+                break;
+            case 4:
+                sub_points.map((point) => {
+                    point.x = point.x + center.x - Math.ceil((range.xMax - range.xMin) / 2) - range.xMin;
+                    point.y = point.y + (col - 1 - (range.yMax - range.yMin)) - range.yMin;
+                });
+                break;
+            case 5:
+                sub_points.map((point) => {
+                    point.x = point.x + center.x - Math.ceil((range.xMax - range.xMin) / 2) - range.xMin;
+                    point.y = point.y + center.y - Math.ceil((range.yMax - range.yMin) / 2) - range.yMin;
+                });
+                break;
+            case 6:
+                sub_points.map((point) => {
+                    point.x = point.x + Math.ceil(center.x / 2) - Math.ceil((range.xMax - range.xMin) / 2) - range.xMin;
+                    point.y = point.y + Math.ceil(center.y / 2) - Math.ceil((range.yMax - range.yMin) / 2) - range.yMin;
+                });
+                break;
+            case 7:
+                sub_points.map((point) => {
+                    point.x = point.x + col - Math.ceil(center.x / 2) - Math.ceil((range.xMax - range.xMin) / 2) - range.xMin;
+                    point.y = point.y + col - Math.ceil(center.y / 2) - Math.ceil((range.yMax - range.yMin) / 2) - range.yMin;
+                });
+                break;
+        }
+    });
+    return newPoints;
+};
+
+/**
+ * 获取偏移前图形坐标
+ * @param points
+ * @returns {Array}
+ */
+Game.getOriginData = function (points) {
     let testPoints = JSON.parse(JSON.stringify(points));
-    range = getRange(testPoints, true);
+    let range = getRange(testPoints, true);
     testPoints.map((block) => {
         block.map((point) => {
             point.x = point.x - range.xMin;
             point.y = point.y - range.yMin;
         })
     });
-    return JSON.stringify(testPoints) === JSON.stringify(target);
+    return testPoints;
+};
+
+/**
+ * 校验两个图形
+ * @param points
+ * @param target
+ * @returns {boolean}
+ */
+Game.checkResult = function (points, target) {
+    return JSON.stringify(Game.getOriginData(points)) === JSON.stringify(target);
 };
 
 /**
@@ -636,4 +735,22 @@ function getDirection(startX, startY, endX, endY) {
     }
 
     return result;
+}
+
+/**
+ * 数组乱序
+ * @param arr
+ * @returns {*}
+ */
+function shuffle(arr) {
+    let length = arr.length,
+        randomIndex,
+        temp;
+    while (length) {
+        randomIndex = Math.floor(Math.random() * (length--));
+        temp = arr[randomIndex];
+        arr[randomIndex] = arr[length];
+        arr[length] = temp
+    }
+    return arr;
 }
