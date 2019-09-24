@@ -164,8 +164,8 @@ Game.prototype = {
             } else {
                 x = x - parseInt(x);
                 y = y - parseInt(y);
-                point.x = parseInt(point.x) + (x - 0.5 > 0 ? 1 : 0);
-                point.y = parseInt(point.y) + (y - 0.5 > 0 ? 1 : 0);
+                point.x = Math.round(parseInt(point.x) + x);
+                point.y = Math.round(parseInt(point.y) + y);
             }
         });
         if (isOutSide) {
@@ -480,44 +480,44 @@ Game.initShakeData = function (points, col) {
         switch (newPos) {
             case 1:
                 sub_points.map((point) => {
-                    point.x = point.x + center.x - Math.ceil((range.xMax - range.xMin) / 2) - range.xMin;
-                    point.y = point.y + 1 - range.yMin;
+                    point.x = Math.round(point.x + center.x - Math.ceil((range.xMax - range.xMin) / 2) - range.xMin);
+                    point.y = Math.round(point.y + 1 - range.yMin);
                 });
                 break;
             case 2:
                 sub_points.map((point) => {
-                    point.x = point.x + 1 - range.xMin;
-                    point.y = point.y + center.y - Math.ceil((range.yMax - range.yMin) / 2) - range.yMin;
+                    point.x = Math.round(point.x + 1 - range.xMin);
+                    point.y = Math.round(point.y + center.y - Math.ceil((range.yMax - range.yMin) / 2) - range.yMin);
                 });
                 break;
             case 3:
                 sub_points.map((point) => {
-                    point.x = point.x + (col - 1 - (range.xMax - range.xMin)) - range.xMin;
-                    point.y = point.y + center.y - Math.ceil((range.yMax - range.yMin) / 2) - range.yMin;
+                    point.x = Math.round(point.x + (col - 1 - (range.xMax - range.xMin)) - range.xMin);
+                    point.y = Math.round(point.y + center.y - Math.ceil((range.yMax - range.yMin) / 2) - range.yMin);
                 });
                 break;
             case 4:
                 sub_points.map((point) => {
-                    point.x = point.x + center.x - Math.ceil((range.xMax - range.xMin) / 2) - range.xMin;
-                    point.y = point.y + (col - 1 - (range.yMax - range.yMin)) - range.yMin;
+                    point.x = Math.round(point.x + center.x - Math.ceil((range.xMax - range.xMin) / 2) - range.xMin);
+                    point.y = Math.round(point.y + (col - 1 - (range.yMax - range.yMin)) - range.yMin);
                 });
                 break;
             case 5:
                 sub_points.map((point) => {
-                    point.x = point.x + center.x - Math.ceil((range.xMax - range.xMin) / 2) - range.xMin;
-                    point.y = point.y + center.y - Math.ceil((range.yMax - range.yMin) / 2) - range.yMin;
+                    point.x = Math.round(point.x + center.x - Math.ceil((range.xMax - range.xMin) / 2) - range.xMin);
+                    point.y = Math.round(point.y + center.y - Math.ceil((range.yMax - range.yMin) / 2) - range.yMin);
                 });
                 break;
             case 6:
                 sub_points.map((point) => {
-                    point.x = point.x + Math.ceil(center.x / 2) - Math.ceil((range.xMax - range.xMin) / 2) - range.xMin;
-                    point.y = point.y + Math.ceil(center.y / 2) - Math.ceil((range.yMax - range.yMin) / 2) - range.yMin;
+                    point.x = Math.round(point.x + Math.ceil(center.x / 2) - Math.ceil((range.xMax - range.xMin) / 2) - range.xMin);
+                    point.y = Math.round(point.y + Math.ceil(center.y / 2) - Math.ceil((range.yMax - range.yMin) / 2) - range.yMin);
                 });
                 break;
             case 7:
                 sub_points.map((point) => {
-                    point.x = point.x + col - Math.ceil(center.x / 2) - Math.ceil((range.xMax - range.xMin) / 2) - range.xMin;
-                    point.y = point.y + Math.ceil(center.y / 2) - Math.ceil((range.yMax - range.yMin) / 2) - range.yMin;
+                    point.x = Math.round(point.x + col - Math.ceil(center.x / 2) - Math.ceil((range.xMax - range.xMin) / 2) - range.xMin);
+                    point.y = Math.round(point.y + Math.ceil(center.y / 2) - Math.ceil((range.yMax - range.yMin) / 2) - range.yMin);
                 });
                 break;
         }
@@ -550,11 +550,13 @@ Game.getOriginData = function (points) {
  * @returns {boolean}
  */
 Game.checkResult = function (points, target) {
-    return Game.getOriginData(points).every((item) => {
+    let result = Game.getOriginData(points).every((item) => {
         return !!target.find((shake) => {
             return JSON.stringify(shake) === JSON.stringify(item);
         });
     });
+    console.log(result);
+    return result;
 };
 
 /**
