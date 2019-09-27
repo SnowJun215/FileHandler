@@ -46,12 +46,15 @@ Game.prototype = {
     },
     initCreate: function () {
         this.initSelectData();
+        this.resetCreate(true);
+        this.addGameListener(this.createTouchStart)
+    },
+    resetCreate: function (isInit) {
         this.clearArea();
         this.initArea(0, 0, this.canvas.width, Math.ceil(this.itemWidth * 6));
         this.initArea(0, Math.ceil(this.itemWidth * 6 + 10), this.canvas.width, this.canvas.height);
         this.drawBlock(this.data);
-        this.drawBlock(this.resultList || [], {x: 0, y: this.itemWidth * 6 + 10});
-        this.addGameListener(this.createTouchStart)
+        !isInit && this.drawBlock(this.resultList || [], {x: 0, y: this.itemWidth * 6 + 10});
     },
     initData: function () {
         console.log(this.canvas.clientWidth, this.canvas.clientHeight);
@@ -118,16 +121,19 @@ Game.prototype = {
                 x: position.clientX / this.itemWidth,
                 y: position.clientY / this.itemWidth
             }, sub_points)) {
-                this.isDrag = true;
-                this.begin = JSON.parse(JSON.stringify(sub_points));
-                this.beginX = eventClient.clientX;
-                this.beginY = eventClient.clientY;
-                this.canvas.onmousemove = this.touchMove.bind(this, sub_points);
-                this.canvas.ontouchmove = this.touchMove.bind(this, sub_points);
-                this.canvas.onmouseup = this.touchEnd.bind(this, sub_points);
-                this.canvas.ontouchend = this.touchEnd.bind(this, sub_points);
+                this.initTouchAction(eventClient, sub_points, this.touchMove, this.touchEnd);
             }
         });
+    },
+    initTouchAction: function (eventClient, sub_points, moveAction, endAction) {
+        this.isDrag = true;
+        this.begin = JSON.parse(JSON.stringify(sub_points));
+        this.beginX = eventClient.clientX;
+        this.beginY = eventClient.clientY;
+        this.canvas.onmousemove = moveAction.bind(this, sub_points);
+        this.canvas.ontouchmove = moveAction.bind(this, sub_points);
+        this.canvas.onmouseup = endAction.bind(this, sub_points);
+        this.canvas.ontouchend = endAction.bind(this, sub_points);
     },
     touchMove: function (sub_points, e) {
         if (!this.isDrag) {
@@ -227,15 +233,8 @@ Game.prototype = {
                     x: relPosition.clientX / this.itemWidth,
                     y: relPosition.clientY / this.itemWidth
                 }, sub_points)) {
-                    this.isDrag = true;
                     this.inResultTarget = true;
-                    this.begin = JSON.parse(JSON.stringify(sub_points));
-                    this.beginX = eventClient.clientX;
-                    this.beginY = eventClient.clientY;
-                    this.canvas.onmousemove = this.createTouchMove.bind(this, sub_points);
-                    this.canvas.ontouchmove = this.createTouchMove.bind(this, sub_points);
-                    this.canvas.onmouseup = this.createTouchEnd.bind(this, sub_points);
-                    this.canvas.ontouchend = this.createTouchEnd.bind(this, sub_points);
+                    this.initTouchAction(eventClient, sub_points, this.createTouchMove, this.createTouchEnd);
                 }
             });
         }
@@ -326,10 +325,7 @@ Game.prototype = {
                     this.resultList.splice(this.resultList.indexOf(sub_points), 1);
                 }
             }
-            this.clearArea();
-            this.initArea(0, 0, this.canvas.width, Math.ceil(this.itemWidth * 6));
-            this.initArea(0, Math.ceil(this.itemWidth * 6 + 10), this.canvas.width, this.canvas.height);
-            this.drawBlock(this.data);
+            this.resetCreate(false);
             this.setTargetList();
         } else {
             let curIndex = Math.round((eventClient.clientX - this.beginX) / this.itemWidth);
