@@ -54,7 +54,7 @@ Game.prototype = {
         this.initArea(0, 0, this.canvas.width, Math.ceil(this.itemWidth * 6));
         this.initArea(0, Math.ceil(this.itemWidth * 6 + 10), this.canvas.width, this.canvas.height);
         this.drawBlock(this.data);
-        !isInit && this.drawBlock(this.resultList || [], {x: 0, y: this.itemWidth * 6 + 10});
+        !isInit && this.setTargetList();
     },
     initData: function () {
         console.log(this.canvas.clientWidth, this.canvas.clientHeight);
@@ -326,7 +326,6 @@ Game.prototype = {
                 }
             }
             this.resetCreate(false);
-            this.setTargetList();
         } else {
             let curIndex = Math.round((eventClient.clientX - this.beginX) / this.itemWidth);
             // console.log(curIndex);
